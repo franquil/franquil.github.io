@@ -80,4 +80,4 @@ theme: next
 deploy:
   type: git
   repo: https://github.com/franquil/franquil.github.io
-  branch: published
+  branch: master
