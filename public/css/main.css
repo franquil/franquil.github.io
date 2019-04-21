@@ -1617,6 +1617,16 @@ pre .javascript .function {
 .fancybox-close:hover {
   border: none;
 }
+.post-copyright {
+  margin: 2em 0 0;
+  padding: 0.5em 1em;
+  border-left: 3px solid #ff1700;
+  background-color: #f9f9f9;
+  list-style: none;
+}
+.post-copyright i.fa {
+  font-size: 15px;
+}
 .rtl.post-body p,
 .rtl.post-body a,
 .rtl.post-body h1,
@@ -1760,7 +1770,7 @@ pre .javascript .function {
   width: 4px;
   height: 4px;
   border-radius: 50%;
-  background: #dbc23d;
+  background: #ffff2d;
 }
 .feed-link,
 .chat {
@@ -2433,7 +2443,7 @@ hr {
 .logo-line-after i {
   position: relative;
   display: block;
-  height: 2px;
+  height: 0px;
   background: #222;
 }
 @media (max-width: 767px) {
