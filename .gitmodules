@@ -1,0 +1,9 @@
+[submodule "hugo/themes/anubis"]
+	path = hugo/themes/anubis
+	url = https://github.com/mitrichius/hugo-theme-anubis.git
+[submodule "hugo/themes/harbor"]
+	path = hugo/themes/harbor
+	url = https://github.com/matsuyoshi30/harbor.git
+[submodule "hugo/hugo-kiera"]
+	path = hugo/hugo-kiera
+	url = https://github.com/funkydan2/hugo-kiera.git
