@@ -5,7 +5,13 @@ title = "大国笔记"
 theme = "hugo-kiera"
 paginate = 10
 googleAnalytics = "UA-51312542-3"
+hasCJKLanguage = true # site contains Chinese/Korean/Japanese characters
 publishDir = "docs" # deploy via github pages at /docs folder
+ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown", "_files$", "_cache$"]
+pygmentsUseClasses = false # syntax highlighting
+
+# custom_css = ["https://cdn.jsdelivr.net/gh/cferdinandi/tabby@12.0.0/dist/css/tabby.min.css"]
+# custom_js = ["https://cdn.jsdelivr.net/gh/cferdinandi/tabby@12.0.0/dist/js/tabby.polyfills.min.js"]
 
 [author]
   name = "Franquil"
@@ -24,8 +30,61 @@ publishDir = "docs" # deploy via github pages at /docs folder
     url = "/tags"
     weight = 10
 
+[permalinks]
+  posts = "/:slug"
+
 [params]
   description = "大国笔记，以记录和学习为目的的简要记录内容。"
   dateFormat = "2006-01-02"
-  tagline = "以记录和学习为目的的笔记。"
+  tagline = "以简要直接的方式记录编程技术学习和实践中所遇到的问题。"
+  mainSections = ["posts", "pages"]
 
+[markup]
+  defaultMarkdownHandler = "goldmark"
+  
+  [markup.asciidocExt]
+  backend = "html5"
+  docType = "article"
+  extensions = []
+  failureLevel = "fatal"
+  noHeaderOrFooter = true
+  safeMode = "unsafe"
+  sectionNumbers = false
+  trace = false
+  verbose = true
+  workingFolderCurrent = false
+  
+  [markup.asciidocExt.attributes]
+
+  [markup.goldmark]
+    [markup.goldmark.extensions]
+      definitionList = true
+      footnote = true
+      linkify = true
+      strikethrough = true
+      table = true
+      taskList = true
+      typographer = true
+    [markup.goldmark.parser]
+      attribute = true
+      autoHeadingID = true
+      autoHeadingIDType = "github"
+    [markup.goldmark.renderer]
+      hardWraps = false
+      unsafe = true
+      xhtml = false
+  [markup.highlight]
+    codeFences = true
+    guessSyntax = false
+    hl_Lines = ""
+    lineNoStart = 1
+    lineNos = false
+    lineNumbersInTable = true
+    noClasses = true
+    style = "native"
+    tabWidth = 4
+  
+  [markup.tableOfContents]
+    endLevel = 3
+    ordered = false
+    startLevel = 2

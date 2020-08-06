@@ -1,10 +1,6 @@
 # Franquil's Notes
 
-Use hugo to generate nots on github pages.
-
-## Getting Started
-
-
+Use hugo to generate notes on github pages.
 
 ### Prerequisites
 
@@ -31,6 +27,8 @@ git push
 ## Built With
 
 * [hugo](https://gohugo.io)
+* [hugo-kiera](https://themes.gohugo.io/hugo-kiera/)
+* [highlight.js](https://highlightjs.org)
 
 ## Authors
 
