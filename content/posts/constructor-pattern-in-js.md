@@ -1,11 +1,10 @@
 +++
 title = "构造器模式介绍和应用"
-date = 2020-08-06T18:40:19+08:00
-images = []
+date = 2020-08-07T08:30:19+08:00
 tags = ["js", "design patterns"]
-categories = []
 draft = false
 slug = "constructor-pattern-introduction-and-examples"
+summary = "最为常见、基本的创建对象模式之一：构造器模式，其功能在于通过用户所传入参数生成一个可编程对象。"
 +++
 
 构造器（或构造者）模式(Constructor Pattern)是面向对象编程中一种最为常见的模式之一，属于一种创建型模式。其主要功能与目的在于初始化和构建一个对象。通常情况下，其会根据所传入的参数来对所构建的对象属性进行配置，有时也会根据内置默认的对象属性来构建对象。
@@ -102,6 +101,6 @@ console.log(myObject.name)
 <br/>
 
 ## 参考
-- [Constructor_object-oriented_programming](https://en.wikipedia.org/wiki/Constructor_(object-oriented_programming)
+- <https://en.wikipedia.org/wiki/Constructor_(object-oriented_programming>
 - [Learning JavaScript Design Patterns](https://addyosmani.com/resources/essentialjsdesignpatterns/book/#constructorpatternjavascript)
 - [Classes Javascript](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes)
