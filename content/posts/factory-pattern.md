@@ -1,8 +1,8 @@
 +++
 title = "工厂模式的介绍和示例"
-date = 2020-08-07T08:48:38+08:00
+date = 2020-08-14T08:48:38+08:00
 tags = ["design patterns", "js"]
-draft = true
+draft = false
 slug = "factory-pattern-introduction-and-examples"
 summary = "工厂模式是一种在面向对象编程中用于创造对象的模式，本文简要介绍了该模式，并简要地展示了该模式的实现方式。"
 +++
