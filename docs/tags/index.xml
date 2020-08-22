@@ -6,10 +6,166 @@
    <description>Recent content in Tags on 大国笔记</description>
    <generator>Hugo -- gohugo.io</generator>
    <language>zh-cn</language>
-   <lastBuildDate>Fri, 07 Aug 2020 08:30:19 +0800</lastBuildDate>
+   <lastBuildDate>Fri, 14 Aug 2020 08:48:38 +0800</lastBuildDate>
    
        <atom:link href="https://franquil.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
    
+   
+     <item>
+       <title>工厂模式的介绍和示例</title>
+       <link>https://franquil.github.io/factory-pattern-introduction-and-examples/</link>
+       <pubDate>Fri, 14 Aug 2020 08:48:38 +0800</pubDate>
+       
+       <guid>https://franquil.github.io/factory-pattern-introduction-and-examples/</guid>
+       <description>&lt;p&gt;工厂模式(Factory Pattern)属于一种创造型模式，其根本目的在于创建一个对象。然而，不同于&lt;a href=&#34;https://franquil.github.io/constructor-pattern-introduction-and-examples/&#34;&gt;构建器模式&lt;/a&gt;，工厂本身不会直接创建对象，而是会根据用户所传入的参数，通过工厂方法（函数）来调用构建器，从而实现创建对象的功能。根据具体实现方式的不同，该模式有时也被细分为工厂方法模式（Factory Method Pattern）和抽象工厂模式（Abstract Factory Pattern）。&lt;/p&gt;
+&lt;p&gt;假设当前用户需要创建一个图书对象，虽然图书对象可能包含不同的种类（如：词典、诗集、小说等等），但它们都可能分享相同的图书对象方法（如：阅读、销售、上架等）或属性，为了避免分别为不同种类图书分别创建构建器等重复工作，可以采用一个“工厂”用来管理这些不同的图书对象构建器，这样用户只需指定类别，工厂就会根据用户的需求创建一个所指定的图书对象。&lt;/p&gt;
+&lt;h2 id=&#34;heading&#34;&gt;目的&lt;/h2&gt;
+&lt;p&gt;工厂模式的目的在于创建一个灵活及可重复使用的方式，将对象构建的方式从对象本身分隔开，以方便实现、修改、测试和管理等。&lt;/p&gt;
+&lt;h2 id=&#34;heading-1&#34;&gt;何时使用工厂模式&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;当对象实例的创建过程过于复杂，需要将其与对象本身分离开来降低复杂度时；&lt;/li&gt;
+&lt;li&gt;当不同的对象实例需要根据不同参数来进行创建时；&lt;/li&gt;
+&lt;li&gt;当所需创建的不同的对象实例需要共享属性或方法时；&lt;/li&gt;
+&lt;li&gt;当需要采用同一个方式来新建不同但相似的对象时；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等等。&lt;/p&gt;
+&lt;h2 id=&#34;js&#34;&gt;采用JS进行示例&lt;/h2&gt;
+&lt;p&gt;有ES5的支持，可以采用&#39;class&#39;方式来进行构建。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// 构建一个可共享的基本图书类
+class Book {
+  constructor(optionsObject) {
+    this.title = optionsObject.title
+    this.author = optionsObject.author
+    this.publisher = optionsObject.publisher
+    this.price = optionsObject.price
+  }
+
+  show() {
+    console.log(`这本书《${this.title}》是由${this.author}撰写的,出版商为${this.publisher}，定价：${this.price}元。`)
+  }
+}
+
+// 基于&#39;Book&#39;类，创建一个&#39;Dictionary&#39;类
+class Dictionary extends Book {
+  constructor(optionsObject) {
+    super(optionsObject)
+    this.type = &amp;quot;词典&amp;quot;
+  }
+
+  searchWord(wordString) {
+    console.log(`您正在使用${this.type}《${this.title}》查找${wordString}...`)
+  }
+}
+
+// 基于&#39;Book&#39;类，创建一个&#39;Poetry&#39;类
+class Poetry extends Book {
+  constructor(optionsObject) {
+    super(optionsObject)
+    this.type = &amp;quot;诗集&amp;quot;
+  }
+
+  readPoem(titleString) {
+    console.log(`您正在阅读诗集《${this.title}》中的诗：${titleString}。`)
+  }
+}
+
+// 构建一个类用于实例化具体&#39;book&#39;类的工厂
+class BookFactory {
+  constructor() {
+    // 记录工厂中所涵盖的&#39;book&#39;类
+    this.registeredBooks = {
+      &amp;quot;default&amp;quot;: Book,
+      &amp;quot;dictionary&amp;quot;: Dictionary,
+      &amp;quot;poetry&amp;quot;: Poetry
+    }
+  }
+
+  // 用于创建&#39;book&#39;类的工厂函数
+  createBook(optionsObject) {
+    return new this.registeredBooks[optionsObject.type](optionsObject)
+  }
+}
+
+// 设定&#39;dictionary&#39;类所需参数
+const dictOptions = {
+  title: &#39;设计模式&#39;,
+  author: &#39;大国&#39;,
+  publisher: &#39;某出版社&#39;,
+  price: 69.0,
+  type: &#39;dictionary&#39;
+}
+
+// 实例化一个&#39;dictionary&#39;类
+const myBookFactory = new BookFactory()
+const myDictionary = myBookFactory.createBook(dictOptions)
+myDictionary.show()
+// 输出：这本书《设计模式》是由大国撰写的,出版商为某出版社，定价：69元。
+myDictionary.searchWord(&#39;工厂&#39;)
+// 输出：您正在使用词典《设计模式》查找工厂...
+
+// 设定&#39;poetry&#39;类所需参数
+const poemOptions = {
+  title: &#39;诗经&#39;,
+  author: &#39;未知&#39;,
+  publisher: &#39;某出版社&#39;,
+  price: 39.0,
+  type: &#39;poetry&#39;
+}
+
+// 实例化&#39;poetry&#39;类
+const myPoetry = myBookFactory.createBook(poemOptions)
+myPoetry.show()
+// 输出：这本书《诗经》是由未知撰写的,出版商为某出版社，定价：39元。
+myPoetry.readPoem(&#39;关雎&#39;)
+// 您正在阅读诗集《诗经》中的诗：关雎。
+
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;heading-2&#34;&gt;工厂模式图示&lt;/h2&gt;
+&lt;p&gt;以上面所提到的图书类为例，工厂模式简要地可以用下图来表示。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&#34;https://franquil.github.io/images/factory-pattern.jpg&#34; alt=&#34;工厂模式&#34; title=&#34;工厂模式(Factory Pattern)&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;abstract-factory-pattern&#34;&gt;抽象工厂模式（Abstract Factory Pattern）&lt;/h2&gt;
+&lt;p&gt;除去上面展示的工厂模式外，若当前有多个相似的工厂需要构建，可以采用抽象工厂模式。该模式可以视为构建工厂的工厂，用于将不同工厂集成在一起。&lt;/p&gt;
+&lt;p&gt;假设除上面提到的&#39;BookFactory&#39;外，现新加入了一个以音频书为出发点的&#39;AudioBookFactory&amp;rsquo;，那么，就可以通过以下方式创建一个构建工厂(&amp;lsquo;BookFactory&#39;或&#39;AudioBookFactory&amp;rsquo;)的工厂。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;class BookFactory {
+  // 沿用之前所创建的类...此处省略
+}
+
+class AudioBookFactory {
+  // 采用&#39;BookFactory&#39;同样的方式创建本类...此处省略
+}
+
+class AbstractFactory {
+  constructor() {
+    // 注册可用的工厂
+    this.registeredFactories = {
+      &#39;BookFactory&#39;: BookFactory,
+      &#39;AudioBookFactory&#39;: AudioBookFactory
+    }
+  }
+
+  // 返回指定的工厂
+  getFactory(factoryType) {
+    return new this.registeredFactories[factoryType]()      
+  }
+}
+
+const myAbstractFactory = new AbstractFactory()
+const myNewFactory = myAbstractFactory.getFactory(&#39;BookFactory&#39;)
+// 此处的&#39;myNewFactory&#39;为&#39;BookFactory&#39;的实例
+
+&lt;/code&gt;&lt;/pre&gt;&lt;h2 id=&#34;heading-3&#34;&gt;结尾&lt;/h2&gt;
+&lt;p&gt;工厂模式可以方便用户采用同一种方式创建类似的对象，然而如果对象差异过大，或不同对象创建过程过于繁琐，该方式可能会带来大量多余的工作，也可能会给测试带来负担，或其他不利的元素。在应用过程中，应慎重考虑该模式的利弊，以避免不必要的工作。&lt;/p&gt;
+&lt;hr&gt;
+&lt;h2 id=&#34;heading-4&#34;&gt;参考&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://en.wikipedia.org/wiki/Factory_method_pattern&#34;&gt;Factory method pattern&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://medium.com/javascript-in-plain-english/javascript-design-patterns-the-factory-pattern-6b399656d710&#34;&gt;JavasScript Design Patterns: The Factory pattern&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://addyosmani.com/resources/essentialjsdesignpatterns/book/#factorypatternjavascript&#34;&gt;Learning JavaScript Design Patterns&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.goodreads.com/book/show/58128.Head_First_Design_Patterns&#34;&gt;Head First Design Patterns&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Classes&#34;&gt;Classes Javascript&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://stackoverflow.com/questions/13029261/design-patterns-factory-vs-factory-method-vs-abstract-factory&#34;&gt;Design Patterns: Factory vs Factory method vs Abstract Factory&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+     </item>
    
      <item>
        <title>构造器模式介绍和应用</title>
