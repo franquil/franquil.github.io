@@ -1,7 +1,7 @@
 ---
 title: "JS内存管理与泄漏"
-date: 2020-08-22T16:24:04+08:00
-draft: true
+date: 2020-09-05T08:24:04+08:00
+draft: false
 slug: "js-memory-management-and-leaks"
 tags: 
   - js
