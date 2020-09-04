@@ -1,0 +1,218 @@
+<html>
+<head>
+  <title>JS内存泄漏示例</title>
+  <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+  <meta content="utf-8" http-equiv="encoding">
+</head>
+<body>
+  <div id="global-variables-memory-leaking-example">
+    <button id="start-global-variables-memory-usage">开始给全局变量分配内存</button>
+    <button id="stop-global-variables-memory-usage">清理全局变量内存</button>
+  </div>
+  <hr />
+
+  <div id="console-memory-leaking-example">
+    <button id="start-console-memory-usage">开始给console分配内存</button>
+    <button id="stop-console-memory-usage">清理console内存</button>
+  </div>
+  <hr />
+
+  <div id="timer-memory-leaking-example">
+    <button id="start-timer-memory-usage">开始给timer分配内存</button>
+    <button id="stop-timer-memory-usage">清理timer内存</button>
+  </div>
+  <hr />
+
+  <div id="dom-memory-leaking-example">
+    <button id="start-dom-memory-usage">开始给DOM分配内存</button>
+    <button id="stop-dom-memory-usage">清理DOM内存</button>
+  </div>
+  <hr />
+
+  <div id="event-listener-memory-leaking-example">
+    <button id="start-event-listener-memory-usage">开始给EventListener分配内存</button>
+    <button id="stop-event-listener-memory-usage">清理EventListener内存</button>
+  </div>
+  <hr />
+
+  <div id="closures-memory-leaking-example">
+    <button id="start-closures-memory-usage">开始给closures分配内存</button>
+    <button id="stop-closures-memory-usage">清理closures内存</button>
+  </div>
+  <hr />
+
+<script type="text/javascript" charset="utf-8">
+  // 全局变量数组
+  let GlobalVariableMemory = [];
+  let memoryLeakInstance;
+
+  document.getElementById('start-global-variables-memory-usage').onclick = function() {
+    // 给全局变量数组添加数据
+    for ( let i = 0; i <= 10000; i++) {
+      GlobalVariableMemory.push(new Date())
+    }
+  };
+
+  document.getElementById('stop-global-variables-memory-usage').onclick = function() {
+    // 清理内存
+    memoryLeakInstance = null;
+    GlobalVariableMemory = null;
+  };
+
+  // ---------------------------------- console导致内存泄漏示例
+
+  let ConsoleMemoryLeaker = function(){
+    this.addData = function() {
+      const tempData = [];
+      for ( let i = 0; i <= 10000; i++) {
+        tempData.push(new Date())
+      }
+      console.log('当前数据为：', tempData);
+    };
+  };
+
+  document.getElementById('start-console-memory-usage').onclick = function() {
+    // 声明一个实例并console.log出临时数据
+    const consoleMemoryLeakerInstance = new ConsoleMemoryLeaker();
+    consoleMemoryLeakerInstance.addData();
+  };
+
+  document.getElementById('stop-console-memory-usage').onclick = function() {
+    console.clear();
+    ConsoleMemoryLeaker = null;
+  };
+
+  // ---------------------------------- 定时器导致内存泄漏示例
+
+  const TimerMemoryLeaker = function() {
+    this.intervel = null;
+    this.data = [];
+
+    this.addData = function() {
+      for ( let i = 0; i <= 10000; i++) {
+        this.data.push(new Date())
+      }
+    };
+
+    this.start = function() {
+      const self = this;
+      self.addData()
+      this.intervel = setInterval(function() {
+        self.runIntervel();
+      }, 500);
+    };
+
+    this.runIntervel = function() {
+      console.log('run intervel action');
+    };
+
+    this.stop = function() {
+      if (this.intervel !== null) {
+        clearInterval(this.intervel);
+      }
+    };
+  };
+
+  let timerMemoryLeakerInstance;
+
+  document.getElementById('start-timer-memory-usage').onclick = function() {
+    // 声明一个实例并调用函数
+    timerMemoryLeakerInstance = new TimerMemoryLeaker();
+    timerMemoryLeakerInstance.start();
+  };
+
+  document.getElementById('stop-timer-memory-usage').onclick = function() {
+    // 停止执行函数并无效化已声明的实例
+    timerMemoryLeakerInstance.stop();
+    timerMemoryLeakerInstance = null;
+  };
+
+  // ---------------------------------- DOM导致内存泄漏示例
+
+  let domElement = document.createElement('p')
+  domElement.id = 'dom-element-memory-leaker';
+
+  const DomMemoryLeaker = function() {
+    this.data = [];
+
+    this.addData = function() {
+      for ( let i = 0; i <= 10000; i++) {
+        this.data.push(new Date());
+      }
+    };
+
+    this.start = function(dom) {
+      this.addData();
+      dom.innerText = this.data.join(',');
+      document.body.appendChild(dom);
+    };
+
+    this.stop = function(dom) {
+      document.body.removeChild(dom);
+    };
+  };
+
+  let domMemoryLeakerInstance;
+
+  document.getElementById('start-dom-memory-usage').onclick = function() {
+    // 声明一个DOM内存泄漏实例，并调用函数获取及显示数据
+    domMemoryLeakerInstance = new DomMemoryLeaker();
+    domMemoryLeakerInstance.start(domElement);
+  };
+
+  document.getElementById('stop-dom-memory-usage').onclick = function() {
+    // 移除DOM节点元素，并无效化已声明的DOM内存泄漏实例
+    domMemoryLeakerInstance.stop(domElement);
+    domMemoryLeakerInstance = null;
+    domElement = null;
+  };
+
+  // ---------------------------------- EventListener导致内存泄漏示例
+
+  function handleClick() {
+    alert('clicked');
+  }
+
+  let eventElement = document.getElementById('start-event-listener-memory-usage');
+  eventElement.addEventListener('click', handleClick);
+
+  document.getElementById('stop-event-listener-memory-usage').onclick = function() {
+    eventElement.removeEventListener('click', handleClick);
+    eventElement = null;
+  };
+
+  // ---------------------------------- closures导致内存泄漏示例
+ 
+  const ClosuresMemoryLeaker = function() {
+    this.intervel = null;
+    this.data = [];
+
+    this.addData = function() {
+      for (let i = 0; i <= 10000; i++) {
+        this.data.push(new Date());
+      }
+    };
+
+    this.addData();
+
+    this.unusedMethod = function() {
+      console.log('data=', this.data);
+    }
+
+    this.start = function() {
+      return this
+    };
+  };
+
+  let closuresMemoryLeakerInstance;
+
+  document.getElementById('start-closures-memory-usage').onclick = function() {
+    closuresMemoryLeakerInstance = new ClosuresMemoryLeaker().start();
+  };
+
+  document.getElementById('stop-closures-memory-usage').onclick = function() {
+    closuresMemoryLeakerInstance = null;
+  };
+</script>
+</body>
+</html>
