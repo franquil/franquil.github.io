@@ -10,7 +10,7 @@ publishDir = "docs" # deploy via github pages at /docs folder
 ignoreFiles = ["\\.Rmd$", "\\.Rmarkdown", "_files$", "_cache$"]
 pygmentsUseClasses = false # syntax highlighting
 
-# custom_css = ["https://cdn.jsdelivr.net/gh/cferdinandi/tabby@12.0.0/dist/css/tabby.min.css"]
+# custom_css = ["/images/css/custom.css"]
 # custom_js = ["https://cdn.jsdelivr.net/gh/cferdinandi/tabby@12.0.0/dist/js/tabby.polyfills.min.js"]
 
 [author]
@@ -38,6 +38,7 @@ pygmentsUseClasses = false # syntax highlighting
   dateFormat = "2006-01-02"
   tagline = "以简要直接的方式记录编程技术学习和实践中所遇到的问题。"
   mainSections = ["posts", "pages"]
+  customCSS = ["/css/custom.css"]
 
 [markup]
   defaultMarkdownHandler = "goldmark"
