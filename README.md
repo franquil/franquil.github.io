@@ -21,6 +21,7 @@ Visit [http://localhost:1313](http://localhost:1313) to see the results.
 
 ```
 hugo
+git add docs/* && git commit -m "add new post"
 git push
 ```
 
