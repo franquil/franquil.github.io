@@ -6,10 +6,361 @@
    <description>Recent content in Tags on 大国笔记</description>
    <generator>Hugo -- gohugo.io</generator>
    <language>zh-cn</language>
-   <lastBuildDate>Fri, 14 Aug 2020 08:48:38 +0800</lastBuildDate>
+   <lastBuildDate>Fri, 04 Sep 2020 08:24:04 +0800</lastBuildDate>
    
        <atom:link href="https://franquil.github.io/tags/index.xml" rel="self" type="application/rss+xml" />
    
+   
+     <item>
+       <title>JS内存管理与泄漏</title>
+       <link>https://franquil.github.io/js-memory-management-and-leaks/</link>
+       <pubDate>Fri, 04 Sep 2020 08:24:04 +0800</pubDate>
+       
+       <guid>https://franquil.github.io/js-memory-management-and-leaks/</guid>
+       <description>&lt;p&gt;虽然在JavaScript中，当对象创建后会自动被分配内存，且在所创建的对象不再被使用后，这些对象所占据的内存应该会被释放。但，这并不意味着不存在内存泄漏的情况出现。作为开发人员，了解JS中内存管理方式，并避免严重的内存泄漏情况，可以说是很重要的一项技能。&lt;/p&gt;
+&lt;p&gt;本篇文章主要介绍了在JS中内存管理的方式，常见的可能出现内存泄漏的情况，以及如何调试及避免内存泄漏。&lt;/p&gt;
+&lt;h2 id=&#34;js&#34;&gt;JS的内存生命周期&lt;/h2&gt;
+&lt;p&gt;一般编程语言都会内存的生命周期都会包含三个阶段，在JS中也不例外，它们分别为：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;内存的分配；&lt;/li&gt;
+&lt;li&gt;内存的使用；&lt;/li&gt;
+&lt;li&gt;内存的释放。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;h3 id=&#34;heading&#34;&gt;内存的分配&lt;/h3&gt;
+&lt;p&gt;在JS中，当对象创建时，会被自动分配内存。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// 当变量声明时，系统自动分配给对象内存空间
+const JSMemoryObject = { foo: &#39;bar&#39; };
+
+// 分配内存给一个函数
+function createAnDateObject() {
+  return new Date()
+}
+
+// 当调用函数时，返回值也会给分配内存
+const memoryInstance = createAnDateObject()
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;heading-1&#34;&gt;内存的使用&lt;/h3&gt;
+&lt;p&gt;使用内存意味着读取或写入已分配的内存资源。例如：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;// 声明字符串和函数并分配内存
+const memoryValue = &amp;quot;内存读取&amp;quot;
+function returnMemoryObject(str) {
+  // 将所传入的内存值写入一个对象并返回
+  return {
+    name: &#39;memory&#39;,
+    value: str || &#39;&#39;
+  }
+}
+
+// 从内存中读取所声明的字符串和函数，并运行后返回所得值
+const myMemoryObject = returnMemoryObject(memoryValue)
+
+&lt;/code&gt;&lt;/pre&gt;&lt;h3 id=&#34;heading-2&#34;&gt;内存的释放&lt;/h3&gt;
+&lt;p&gt;在JS中，当已分配的内存不再使用后，会自动触发所谓的“垃圾回收”机制。在这种内存垃圾，需要利用垃圾回收器进行自动清理。而垃圾回收器的目的是监视内存的分配，当其达到“释放”的判断标准后，再将其回收。然而，很多内存泄漏问题也就是出在这个阶段。由于这个阶段在JS中是自动实现的，而有些时候，一些内存地址是否还需要使用，或是已经无需使用的标准可能无法完全确认，这就导致了已声明的内存无法得到回收的情况出现，也就是通常所谓的内存泄漏。&lt;/p&gt;
+&lt;h2 id=&#34;heading-3&#34;&gt;内存中的垃圾回收&lt;/h2&gt;
+&lt;p&gt;在JS中内存垃圾的判断与回收，都是按照指定规则触发和自动完成的。而垃圾回收机制的局限性，可以被认为是导致内存泄漏的“元凶”。&lt;/p&gt;
+&lt;p&gt;“标记并清除算法”(Mark-and-Sweep Algorithm)被认为在当代浏览器中广泛使用的一种内存垃圾回收机制。该机制会间隔运行垃圾回收器，首先，它会在当前全局根变量中找到并标记所有被参考的对象，和这些对象所参考的对象，并遍历所有对全局根变量有着些许“联系”（被参考）的对象。被参考说明一个对象仍在使用，或仍有着存在价值，这样垃圾回收器就不会在内存中清除这些有用的数据。&lt;/p&gt;
+&lt;p&gt;在找到并标记(mark)这些“有用”的对象后，下一步就是清除(sweep)掉所有那些没有被标记的对象，并释放这些对象所占据的内存。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-garbage-collection-mark-and-sweep-demo.gif&#34;
+         alt=&#34;JS垃圾回收标记并清除算法示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS垃圾回收标记并清除算法实例&lt;/h4&gt;&lt;p&gt;来源：blog.appsignal.com&lt;/p&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;更多有关JS中的垃圾回收机制，可以&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management#Garbage_collection&#34;&gt;查看参考&lt;/a&gt;。&lt;/p&gt;
+&lt;h2 id=&#34;js-1&#34;&gt;在浏览器中JS内存泄漏示例及避免&lt;/h2&gt;
+&lt;p&gt;不同的JS运行环境或不同的浏览器，可能会有不同的垃圾回收机制和相对应的调试方式。下面，本文主要以Chrome浏览器为例，来演示JS在浏览器中常见内存泄漏的情况。&lt;/p&gt;
+&lt;p&gt;常见的内存泄漏有如下几种情况引起的：&lt;/p&gt;
+&lt;h3 id=&#34;heading-4&#34;&gt;不恰当的全局变量&lt;/h3&gt;
+&lt;p&gt;全局变量是导致内存泄漏常见的一种情况。如下例所示：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;html&amp;gt;
+&amp;lt;head&amp;gt;
+  &amp;lt;title&amp;gt;JS内存泄漏示例&amp;lt;/title&amp;gt;
+  &amp;lt;meta content=&amp;quot;text/html;charset=utf-8&amp;quot; http-equiv=&amp;quot;Content-Type&amp;quot;&amp;gt;
+&amp;lt;/head&amp;gt;
+&amp;lt;body&amp;gt;
+  &amp;lt;div id=&amp;quot;global-variables-memory-leaking-example&amp;quot;&amp;gt;
+    &amp;lt;button id=&amp;quot;start-global-variables-memory-usage&amp;quot;&amp;gt;开始给全局变量分配内存&amp;lt;/button&amp;gt;
+    &amp;lt;button id=&amp;quot;stop-global-variables-memory-usage&amp;quot;&amp;gt;清理全局变量内存&amp;lt;/button&amp;gt;
+  &amp;lt;/div&amp;gt;
+
+&amp;lt;script type=&amp;quot;text/javascript&amp;quot; charset=&amp;quot;utf-8&amp;quot;&amp;gt;
+  // 全局变量，这里以数组为例
+  let GlobalVariableMemory = [];
+
+  document.getElementById(&#39;start-global-variables-memory-usage&#39;).onclick = function() {
+    // 给全局变量数组添加数据
+    for ( let i = 0; i &amp;lt;= 10000; i++) {
+      GlobalVariableMemory.push(new Date())
+    }
+  };
+
+  document.getElementById(&#39;stop-global-variables-memory-usage&#39;).onclick = function() {
+    // 清理全局变量数据内存中的数据
+    GlobalVariableMemory = null;
+  };
+&amp;lt;/script&amp;gt;
+&amp;lt;/body&amp;gt;
+&amp;lt;/html&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;当我们点击“开始给全局变量分配内存”按钮后，会触发给全局变量载入数据的函数。而这些载入全局变量的数据会载入当前页面的内存中，尤其是在由单页面构成的功能中，即使这些数据已经使用后，且无需再次使用时，其也会占据一定的内存。而由于其是全局变量，JS的垃圾回收器由于无法判断其是否仍会再次被利用，导致这部分所占用的内存无法自动清除。如果全局变量持续增加，将会导致浏览器占用更多系统的内存空间，降低系统运行效率。&lt;/p&gt;
+&lt;p&gt;那么，如何才能看到这些“泄漏”的内存呢？以Chrome浏览器为例，首先打开上面的示例页面，然后找到&amp;quot;Developer Tool&amp;quot;下的&amp;quot;Memory&amp;quot;选项。在点击任何按钮前，先给内存来个快照。随后，点击几下“开始给全局变量分配内存”按钮，之后，再次给内存来个快照。最后，为了清除分配给全局变量的内存，点击“清理全局变量内存”按钮，然后再次快照。&lt;/p&gt;
+&lt;p&gt;在采用上述步骤后，会得到如下示例。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-global-variables-memory-leaking-example-1.png&#34;
+         alt=&#34;JS全局变量内存泄漏示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS全局变量内存使用快照&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;可以清晰地看到，在给全局变量分配内存后，“Snapshot 2”所占用的内存明显增加。而当清除全局变量内存使用后，&amp;ldquo;Snapshot 3&amp;quot;显示内存又回复到初始时的状态，已分配的内存已得到释放。&lt;/p&gt;
+&lt;p&gt;在知道导致内存泄漏的原因后，在实际开发过程中，就可以避免这种情况的出现。首先，可以尽量少使用“全局变量”来储存数据。例如，如果把上例中的全局变量&lt;code&gt;GlobalVariableMemory&lt;/code&gt;改为局部/本地变量，将其嵌入到子函数中，就可以有效的避免由于全局变量导致内存泄漏的状况出现。&lt;/p&gt;
+&lt;p&gt;其次，如果使用全局变量不可避免的话，那么，就如上例所示，在使用完成且无需再次使用全局变量后，可将这个全局变量分配为无效值&lt;code&gt;null&lt;/code&gt;等，或者再次分配其他需要使用的数据。&lt;/p&gt;
+&lt;h3 id=&#34;console&#34;&gt;console输出数据&lt;/h3&gt;
+&lt;p&gt;类似全局变量所储存的数据会占用浏览器内存，由console.log等方式输出的数据也会占用内存，而如果没有清除的话，同样会导致内存泄漏的情况出现。&lt;/p&gt;
+&lt;p&gt;例如，采用上例中相似的方式定义两个按钮和相关联的JS函数&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;!-- 定义HTML按钮 --&amp;gt;
+&amp;lt;div id=&amp;quot;console-memory-leaking-example&amp;quot;&amp;gt;
+  &amp;lt;button id=&amp;quot;start-console-memory-usage&amp;quot;&amp;gt;开始给console分配内存&amp;lt;/button&amp;gt;
+  &amp;lt;button id=&amp;quot;stop-console-memory-usage&amp;quot;&amp;gt;清理console内存&amp;lt;/button&amp;gt;
+&amp;lt;/div&amp;gt;
+&amp;lt;!-- 省略其他HTML代码 --&amp;gt;
+
+&amp;lt;script type=&amp;quot;text/javascript&amp;quot; charset=&amp;quot;utf-8&amp;quot;&amp;gt;
+  // 定义会导致内存泄漏的函数
+  const ConsoleMemoryLeaker = function(){
+    this.addData = function() {
+      const tempData = [];
+      for ( let i = 0; i &amp;lt;= 10000; i++) {
+        tempData.push(new Date())
+      }
+      console.log(&#39;当前数据为：&#39;, tempData);
+    };
+  };
+  
+  // 定义按钮相关联的函数
+  document.getElementById(&#39;start-console-memory-usage&#39;).onclick = function() {
+    // 声明一个实例并console.log出临时数据
+    const consoleMemoryLeakerInstance = new ConsoleMemoryLeaker();
+    consoleMemoryLeakerInstance.addData();
+  };
+  
+  // 清除console.log输出的数据
+  document.getElementById(&#39;stop-console-memory-usage&#39;).onclick = function() {
+    console.clear();
+  };
+&amp;lt;/script&amp;gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;重复上面所使用的步骤，首先进行内存快照，然后点击“开始给console分配内存”按钮，再次进行内存快照。最后，在点击“清理console内存”后，对内存进行再次快照。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-console-memory-leaking-example-1.png&#34;
+         alt=&#34;JS console内存泄漏示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS console内存使用快照&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;如上图显示，由于console.log的数据输出所占用的内存会导致内存泄漏的情况出现。当采用&lt;code&gt;console.clear()&lt;/code&gt;函数对console输出数据进行清空后，之前所占用的内存也会被释放。如果将代码中的&lt;code&gt;console.log&lt;/code&gt;注释掉，重复上述所进行的内存快照步骤，会发现内存中的数据并未出现变化。可知，采用console输出会出现内存泄漏，而清除console所输出的数据，会避免其引发内存泄漏。&lt;/p&gt;
+&lt;h3 id=&#34;intervel&#34;&gt;被遗忘的定时器(intervel)&lt;/h3&gt;
+&lt;p&gt;在JS中比较常见的由&#39;setIntervel&#39;或是&#39;setTimeout&#39;设定的定时器，如果未能及时清除，也可能会导致内存泄漏的情况。如下例所示。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;&amp;lt;!-- 定义HTML按钮 --&amp;gt;
+  &amp;lt;div id=&amp;quot;timer-memory-leaking-example&amp;quot;&amp;gt;
+    &amp;lt;button id=&amp;quot;start-timer-memory-usage&amp;quot;&amp;gt;开始timer分配内存&amp;lt;/button&amp;gt;
+    &amp;lt;button id=&amp;quot;stop-timer-memory-usage&amp;quot;&amp;gt;清理timer内存&amp;lt;/button&amp;gt;
+  &amp;lt;/div&amp;gt;
+&amp;lt;!-- 省略其他HTML代码 --&amp;gt;
+
+&amp;lt;script type=&amp;quot;text/javascript&amp;quot; charset=&amp;quot;utf-8&amp;quot;&amp;gt;
+  // 定义可能导致计时器内存泄漏函数
+  const TimerMemoryLeaker = function() {
+    this.intervel = null;
+    this.data = [];
+
+    this.addData = function() {
+      for ( let i = 0; i &amp;lt;= 10000; i++) {
+        this.data.push(new Date())
+      }
+    };
+
+    this.start = function() {
+      const self = this;
+      self.addData()
+      this.intervel = setInterval(function() {
+        self.runIntervel();
+      }, 500);
+    };
+
+    this.runIntervel = function() {
+      console.log(&#39;run intervel action&#39;);
+    };
+
+    this.stop = function() {
+      if (this.intervel !== null) {
+        clearInterval(this.intervel);
+      }
+    };
+  };
+
+  let timerMemoryLeakerInstance;
+
+  document.getElementById(&#39;start-timer-memory-usage&#39;).onclick = function() {
+    // 声明一个实例并调用函数
+    timerMemoryLeakerInstance = new TimerMemoryLeaker();
+    timerMemoryLeakerInstance.start();
+  };
+
+  document.getElementById(&#39;stop-timer-memory-usage&#39;).onclick = function() {
+    // 停止执行函数并无效化已声明的实例
+    timerMemoryLeakerInstance.stop();
+    timerMemoryLeakerInstance = null;
+  };
+
+&amp;lt;/script&amp;gt;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如上所示，若所定义的&lt;code&gt;timerMemoryLeakerInstance&lt;/code&gt;没有清除所使用的计时器的话，即使无效化该变量，也可能会导致触发的计时器持续运行，而导致内存泄漏。即使随着浏览器垃圾回收机制的不断演进，由&lt;code&gt;setTimeout&lt;/code&gt;所设定的计时器会在出发后自动回收，但采用相对应的清除函数&lt;code&gt;clearInterval&lt;/code&gt;或&lt;code&gt;clearTimeout&lt;/code&gt;扔可被认为是一种很好的开发实践。&lt;/p&gt;
+&lt;p&gt;在本例中，若要避免由定时器引发的内存泄漏，需在无效化实例前，先清除所定义的定时器。否则，通过内存快照就会发现，实例的内存不会被释放。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-timer-memory-leaking-example-1.png&#34;
+         alt=&#34;JS timer内存泄漏示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS timer内存使用快照&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;当调用&lt;code&gt;clearIntervel&lt;/code&gt;清除掉所触发的定时器后，会看到计时器实例所占用的内存已被释放。&lt;/p&gt;
+&lt;h3 id=&#34;dom&#34;&gt;无用的文档模型(DOM)参考&lt;/h3&gt;
+&lt;p&gt;通过JS创建的页面节点元素，在使用过后，如果不及时清除原数据的话，会导致所占用的内存泄漏。例如下例所示。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  // ---------------------------------- DOM导致内存泄漏示例
+
+  // 创建一个DOM节点元素，用于储存数据
+  let domElement = document.createElement(&#39;p&#39;)
+  domElement.id = &#39;dom-element-memory-leaker&#39;;
+
+  const DomMemoryLeaker = function() {
+    this.data = [];
+
+    this.addData = function() {
+      for ( let i = 0; i &amp;lt;= 10000; i++) {
+        this.data.push(new Date())
+      }
+    };
+
+    this.start = function(dom) {
+      // 将数据添加至指定元素，并于页面中显示
+      this.addData();
+      dom.innerText = this.data.join(&#39;,&#39;)
+      document.body.appendChild(dom);
+    };
+
+    this.stop = function(dom) {
+      // 移除指定dom
+      document.body.removeChild(dom);
+    };
+  };
+
+  let domMemoryLeakerInstance;
+
+  document.getElementById(&#39;start-dom-memory-usage&#39;).onclick = function() {
+    // 声明一个DOM内存泄漏实例，并调用函数获取及显示数据
+    domMemoryLeakerInstance = new DomMemoryLeaker();
+    domMemoryLeakerInstance.start(domElement);
+  };
+
+  document.getElementById(&#39;stop-dom-memory-usage&#39;).onclick = function() {
+    // 移除DOM节点元素，并无效化已声明的DOM内存泄漏实例
+    domMemoryLeakerInstance.stop(domElement);
+    domMemoryLeakerInstance = null;
+    domElement = null;
+  };
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;按照上面示例的步骤，进行内存快照，会看到如下图所示。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-dom-memory-leaking-example-1.png&#34;
+         alt=&#34;JS dom内存泄漏示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS 无用dom参考内存使用快照&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;若将&lt;code&gt;domMemoryLeakerInstance = null&lt;/code&gt;语句移除的话，会发现即使页面元素&#39;dom-element-memory-leaker&#39;已经从页面文档中移除的话，而&#39;domMemoryLeakerInstance&#39;变量所占用的内存也不会被释放，这就导致了泄漏情况的出现。为了避免泄漏，在数据已经加载如DOM后，无用的在JS中储存的原数据应该被移除。此外，已生成的DOM节点本身，也可能会占用内存，进而引发泄漏情况。一种解决方式就是，将JS所创建的节点声明为本地变量，而非全局变量，如在上例中将其包含在&lt;code&gt;DomMemoryLeaker&lt;/code&gt;里。当节点不在使用后，无效化所声明的实例&lt;code&gt;domMemoryLeakerInstance&lt;/code&gt;便可以释放所占用的内存。&lt;/p&gt;
+&lt;h3 id=&#34;event-listener&#34;&gt;事件监听器（Event Listener）&lt;/h3&gt;
+&lt;p&gt;在一些老式的浏览器中，如果设定的event listener没有及时清除的话，可能会导致内存泄漏的情况。但现代的很多浏览器的垃圾回收机制都可以识别无效的event listener，并释放内存。然而，手动清理所声明的event listener被视为一种好的开发实践，可以避免内存泄漏，或导致不必要的交互事件出现。&lt;/p&gt;
+&lt;p&gt;例如下例所示：&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  // ---------------------------------- EventListener导致内存泄漏示例
+
+  function handleClick(n) {
+    console.log(&#39;clicked&#39;)
+  }
+
+  const eventElement = document.getElementById(&#39;start-event-listener-memory-usage&#39;);
+  // 添加事件监听器
+  eventElement.addEventListener(&#39;click&#39;, handleClick);
+
+  document.getElementById(&#39;stop-event-listener-memory-usage&#39;).onclick = function() {
+    // 清除事件监听器
+    eventElement.removeEventListener(&#39;click&#39;, handleClick);
+  };
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;如果没有比较大的数据被调用的话，也许并不会带来明显的内存占用；若调用函数中存在较为复杂的逻辑和较大的对象参考，那么，将可能会带来严重的内存泄漏事件。&lt;/p&gt;
+&lt;h3 id=&#34;closures&#34;&gt;闭包(Closures)&lt;/h3&gt;
+&lt;p&gt;在一个closure中，可能会出现对较大对象的参考，即使这些对象的一些函数或是数据可能在当下并无用途，但也会占用内存。例如下例所示。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;  // ---------------------------------- closures导致内存泄漏示例
+ 
+  const ClosuresMemoryLeaker = function() {
+    this.data = [];
+
+    this.addData = function() {
+      for (let i = 0; i &amp;lt;= 10000; i++) {
+        this.data.push(new Date());
+      }
+    };
+
+    this.addData();
+    
+    this.unusedMethod = function() {
+      console.log(&#39;data=&#39;, this.data);
+    }
+
+    this.start = function() {
+      return this
+    };
+  };
+
+  let closuresMemoryLeakerInstance;
+
+  document.getElementById(&#39;start-closures-memory-usage&#39;).onclick = function() {
+    // 声明一个clousure内存泄漏实例，并调用函数
+    closuresMemoryLeakerInstance = new ClosuresMemoryLeaker().start();
+  };
+
+  document.getElementById(&#39;stop-closures-memory-usage&#39;).onclick = function() {
+    // 无效化已声明的内存泄漏实例
+    closuresMemoryLeakerInstance = null;
+  };
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt;对内存进行开始前后快照进行对比，会得到类似的情况，如下图。&lt;/p&gt;
+&lt;figure&gt;
+    &lt;img src=&#34;https://franquil.github.io/images/202008/js-closures-memory-leaking-example-1.png&#34;
+         alt=&#34;JS closures内存泄漏示例&#34;/&gt; &lt;figcaption&gt;
+            &lt;h4&gt;JS closures内存使用快照&lt;/h4&gt;
+        &lt;/figcaption&gt;
+&lt;/figure&gt;
+
+&lt;p&gt;一个子函数closure被调用的同时，其外部语法环境的数据和函数即使没有被使用，但也可能导致内存泄漏。&lt;/p&gt;
+&lt;h2 id=&#34;heading-5&#34;&gt;结尾&lt;/h2&gt;
+&lt;p&gt;在了解了浏览器所采用的内存管理，垃圾回收机制与“标记和清除算法”的原理后，在实际JS开发中，就可以采取一定的措施来促使内存被回收，避免泄漏的情况出现。应该注意的事项有：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;尽量避免使用全局变量，尤其是较大的对象；如无法避免，在使用后应该予以清除，以释放所占用的内存；&lt;/li&gt;
+&lt;li&gt;及时移除所设定的计时器(timer)和事件监听器（event listener）;&lt;/li&gt;
+&lt;li&gt;在使用过后，及时清除JS中创建的DOM节点元素；&lt;/li&gt;
+&lt;li&gt;在嵌套的closure环境中， 留意循环参考，特别是占用较大内存较大的对象，在使用过后及时清理；&lt;/li&gt;
+&lt;li&gt;尽量避免对同一个对象的多处参考和引用，如无法避免，在使用后记得清除；&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;等等。&lt;/p&gt;
+&lt;p&gt;随着JS运行环境的不断演进，垃圾回收机制已经可以及时清除一些常见的错误导致的内存泄漏；然而，如果不留意的话，仍可能会导致严重的内存泄漏事件，导致程序运行迟缓或崩溃等问题，尤其是在频繁处理较大的象时。&lt;/p&gt;
+&lt;p&gt;本文中的代码可以通过&lt;a href=&#34;https://codepen.io/franquil/pen/JjXOOar&#34;&gt;在线代码链接&lt;/a&gt;查看，也可以通过&lt;a href=&#34;https://franquil.github.io/html/js-memory-leaking-examples.html&#34;&gt;本地版本&lt;/a&gt;查看。&lt;/p&gt;
+&lt;h2 id=&#34;heading-6&#34;&gt;参考与延伸阅读&lt;/h2&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://developer.mozilla.org/en-US/docs/Web/JavaScript/Memory_Management&#34;&gt;Memory Management - Javascript | MDN&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.ibm.com/developerworks/library/wa-jsmemory/index.html&#34;&gt;Understand memory leaks in Javascript applications&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.lambdatest.com/blog/eradicating-memory-leaks-in-javascript/&#34;&gt;Eridicating Memory Leaks in Javascript | LambdaTest&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://auth0.com/blog/four-types-of-leaks-in-your-javascript-code-and-how-to-get-rid-of-them/&#34;&gt;4 Types of Memory Leaks in Javascript and How to Get Rid of Them&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://developers.google.com/web/tools/chrome-devtools/memory-problems/&#34;&gt;Fix Memory Problems | Chrome DevTools | Google Developers&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://blog.appsignal.com/2020/05/06/avoiding-memory-leaks-in-nodejs-best-practices-for-performance.html&#34;&gt;Avoiding Memory Leaks in Node.js: Best Practices for Performance&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+     </item>
    
      <item>
        <title>工厂模式的介绍和示例</title>

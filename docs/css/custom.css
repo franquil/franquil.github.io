@@ -1,0 +1,29 @@
+/* custom style for hugo-kiera theme */
+
+article > h2 {
+  margin-top: 2em;
+}
+
+figure > figcaption > h4 {
+  padding: 5px 0 0 0;
+  margin: 0;
+  font-size: 0.8em;
+  font-weight: normal;
+  font-style: italic;
+}
+
+a {
+  text-decoration: underline;
+}
+
+/* remove pre block background */
+#container main article > pre {
+  background-color: #fff;
+  box-shadow: none;
+  padding: 0;
+}
+
+#container main article p code {
+  background-color: #eee;
+  padding: 0 5px;
+}
