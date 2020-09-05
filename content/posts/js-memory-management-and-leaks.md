@@ -1,6 +1,6 @@
 ---
 title: "JS内存管理与泄漏"
-date: 2020-09-05T08:24:04+08:00
+date: 2020-09-04T08:24:04+08:00
 draft: false
 slug: "js-memory-management-and-leaks"
 tags: 
@@ -386,6 +386,7 @@ const myMemoryObject = returnMemoryObject(memoryValue)
 
 随着JS运行环境的不断演进，垃圾回收机制已经可以及时清除一些常见的错误导致的内存泄漏；然而，如果不留意的话，仍可能会导致严重的内存泄漏事件，导致程序运行迟缓或崩溃等问题，尤其是在频繁处理较大的象时。
 
+本文中的代码可以通过[在线代码链接](https://codepen.io/franquil/pen/JjXOOar)查看，也可以通过[本地版本](/html/js-memory-leaking-examples.html)查看。
 
 ## 参考与延伸阅读
 
