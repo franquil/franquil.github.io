@@ -4,7 +4,7 @@ date = 2020-09-09T08:18:55+08:00
 slug = "singleton-pattern-introduction-and-examples"
 tags = ["design patterns", "js"]
 categories = []
-draft = true
+draft = false
 +++
 
 单例模式（Singleton Pattern）用于构建可以全局访问的一个类的实例。该模式属于一种创建型的模式，一般来说用于限制类的实例为单一的一个实例，如果该类的实例已经存在的话，则返回该实例。该实例一般在整个系统中都可以调用。
